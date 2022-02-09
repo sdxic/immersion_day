@@ -1,0 +1,74 @@
+---
+- name: Add a new VRF to a tenant
+  hosts: localhost
+  vars_files: immday_vars.yml
+  tasks:
+  - name: Deploy VRF context
+    aci_vrf:
+      host: apic1-pod2
+      username: "{{ student_username }}"
+      password: "{{ student_password }}"
+      validate_certs: no
+      vrf: "{{ vrf }}"
+      tenant: "{{ tenant }}"
+      descr: Unenforced lab VRF
+      policy_control_preference: unenforced
+      policy_control_direction: ingress
+      state: present
+    delegate_to: localhost
+ 
+  - name: Deploy Bridge Domain
+    aci_bd:
+      host: apic1-pod2
+      username: "{{ student_username }}"
+      password: "{{ student_password }}"    
+      validate_certs: no
+      tenant: "{{ tenant }}"
+      bd: "{{ bd }}"
+      mac_address: 00:22:BD:F8:19:FE
+      vrf: "{{ vrf }}"
+      state: present
+    delegate_to: localhost
+
+  - name: Add Subnet to Bridge Domain
+    aci_bd_subnet:
+      host: apic1-pod2
+      username: "{{ student_username }}"
+      password: "{{ student_password }}"
+      validate_certs: no
+      tenant: "{{ tenant }}"
+      bd: "{{ bd }}"
+      gateway: "{{ gw_address }}"
+      mask: 24
+      state: present
+      scope: shared
+    delegate_to: localhost
+
+  - name: Add a new AP
+    aci_ap:
+      host: apic1-pod2
+      username: "{{ student_username }}"
+      password: "{{ student_password }}"
+      validate_certs: no
+      tenant: "{{ tenant }}"
+      ap: "{{ ap }}"
+      description: student lab AP
+      state: present
+    delegate_to: localhost
+
+  - name: Add a new EPG
+    aci_epg:
+      host: apic1-pod2
+      username: "{{ student_username }}"
+      password: "{{ student_password }}"
+      validate_certs: no
+      tenant: "{{ tenant }}"
+      ap: "{{ ap }}"
+      epg: "{{ item }}"
+      description: Web Intranet EPG
+      bd: "{{ bd }}"
+      preferred_group: no
+      state: present
+    delegate_to: localhost
+    with_items:
+      "{{ epgs }}"

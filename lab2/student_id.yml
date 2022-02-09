@@ -1,0 +1,12 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+ 
+  tasks:
+  - name: Add correct student number to VAR file
+    lineinfile:
+      path: immday_vars.yml
+      regexp: sno
+      line: 'student_no: {{student_id}}'
+ 

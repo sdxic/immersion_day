@@ -1,0 +1,86 @@
+---
+# !!!DISCLAIMER: DO NOT USE IN PRODUCTION ENVIRONMENT!!!
+- name: Query and remove all VRFs BDs and APs
+  hosts: localhost
+  vars_files: immday_vars.yml
+  tasks:
+  - name: Query all VRFs
+    aci_vrf:
+      host: apic1-pod2
+      username: "{{ student_username }}"
+      password: mysidlab
+      validate_certs: no
+      tenant: "{{ tenant }}"
+      state: query
+    delegate_to: localhost
+    register: query_vrfs
+    
+  - name: Remove a VRF for a tenant
+    aci_vrf:
+      host: apic1-pod2
+      username:  "{{ student_username }}"
+      password: mysidlab
+      validate_certs: no
+      vrf: "{{ item.fvCtx.attributes.name }}"
+      tenant: "{{ tenant }}"
+      state: absent
+    delegate_to: localhost
+    loop: "{{ query_vrfs.current.0.fvTenant.children }}"
+    loop_control:
+      label: "deleting VRF Name {{ item.fvCtx.attributes.name }}"
+    ignore_errors: yes
+
+  - name: Query all AP in Tn
+    aci_ap:
+      host: apic1-pod2
+      username:  "{{ student_username }}"
+      password: mysidlab
+      validate_certs: no
+      tenant: "{{ tenant }}"
+      state: query
+    delegate_to: localhost
+    register: query_ap
+
+  - name: Remove the APs
+    aci_ap:
+      host: apic1-pod2
+      username:  "{{ student_username }}"
+      password: mysidlab
+      validate_certs: no
+      tenant: "{{ tenant }}"
+      ap: "{{ item.fvAp.attributes.name }}"
+      state: absent
+    delegate_to: localhost
+    loop: "{{ query_ap.current.0.fvTenant.children }}"
+    loop_control:
+      label: "deleting AP Name {{ item.fvAp.attributes.name }}"
+    ignore_errors: yes
+
+  - name: Query all Bridge Domains in Tn
+    aci_bd:
+      host: apic1-pod2
+      username:  "{{ student_username }}"
+      password: mysidlab
+      validate_certs: no
+      tenant: "{{ tenant }}"
+      state: query
+    delegate_to: localhost
+    register: query_bd
+
+  - name: Delete all the Bridge Domains Found
+    aci_bd:
+      host: apic1-pod2
+      username:  "{{ student_username }}"
+      password: mysidlab
+      validate_certs: no
+      tenant: "{{ tenant }}"
+      bd: "{{ item.fvBD.attributes.name }}"
+      state: absent
+    delegate_to: localhost     
+    loop: "{{ query_bd.current.0.fvTenant.children }}"
+    loop_control:
+      label: "deleting BD Name {{ item.fvBD.attributes.name }}"
+    ignore_errors: yes
+
+
+ 

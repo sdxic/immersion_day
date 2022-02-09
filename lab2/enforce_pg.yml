@@ -1,0 +1,33 @@
+---
+- name: Add a new VRF to a tenant
+  hosts: localhost
+  vars_files: immday_vars.yml
+  tasks:
+  - name: Deploy VRF context
+    aci_vrf:
+      host: apic1-pod2
+      username: "{{ student_username }}"
+      password: "{{ student_password }}"
+      validate_certs: no
+      vrf: "{{ vrf }}"
+      tenant: "{{ tenant }}"
+      descr: Unenforced lab VRF
+      policy_control_preference: enforced
+      policy_control_direction: ingress
+      state: present
+    delegate_to: localhost
+
+  - name: Enable preferred Group 
+    aci_rest:
+      host: apic1-pod2
+      username: "{{ student_username }}"
+      password: "{{ student_password }}"
+      validate_certs: no
+      path: /api/node/mo/uni/tn-student{{ student_no }}/ctx-{{ vrf }}/any.json
+      method: post
+      content:
+        vzAny:
+          attributes: 
+            dn:  uni/tn-student{{ student_no }}/ctx-{{ vrf }}/any
+            prefGrMemb: enabled     
+    delegate_to: localhost

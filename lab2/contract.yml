@@ -1,0 +1,19 @@
+---
+- name: Add consumed contract
+  hosts: localhost
+  vars_files: immday_vars.yml
+  tasks:
+  - name: 
+    aci_rest:
+      host: apic1-pod2
+      username: "{{ student_username }}"
+      password: "{{ student_password }}"
+      validate_certs: no
+      path: "/api/node/mo/uni/tn-{{ tenant }}/ctx-{{ vrf }}/any.json"
+      method: post
+      content:
+        vzRsAnyToConsIf:
+          attributes:
+            tnVzCPIfName: EXPORTED_JUMPBOX
+            status: created
+    delegate_to: localhost

@@ -1,0 +1,21 @@
+---
+- name: Add consumed contract interface to app and web EPGs
+  hosts: localhost
+  vars_files: immday_vars.yml
+  tasks:
+  - name: 
+    aci_rest:
+      host: apic1-pod2
+      username: "{{ student_username }}"
+      password: "{{ student_password }}"
+      validate_certs: no
+      path: "/api/node/mo/uni/tn-student{{ student_no }}/ap-my-ap/epg-{{ item }}.json"
+      method: post
+      content:
+        fvRsConsIf:
+          attributes:
+            tnVzCPIfName: EXPORTED_JUMPBOX
+            status: created
+    delegate_to: localhost
+    with_items:
+      "{{ app_web_only }}"

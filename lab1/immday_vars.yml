@@ -1,0 +1,18 @@
+student_no: sno # input student number
+student_username: "student{{ student_no }}" 
+tennant: "student{{ student_no }}"
+vrf: my-vrf
+ap: my-ap
+bd: my-bd
+gw_address: "10.242.{{ student_no }}.1"
+epgs:
+   - web-A
+   - app-A
+   - db-A
+encaps:
+   - "{{ 1100+(student_no*3) -2 }}"
+   - "{{ 1100+(student_no*3) -1 }}"
+   - "{{ 1100+(student_no*3) }}"
+app_web_only:
+   - web-A
+   - app-A

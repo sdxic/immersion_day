@@ -1,0 +1,25 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_prompt:
+  - name: student_id
+    prompt: "What is your student ID?"
+    private: no
+ 
+  tasks:
+  - name: Validate User Input
+    assert:
+      that:
+        - student_id|int is regex("^[0-9]+$")
+        - student_id|int > 0
+        - student_id|int <= 35
+      fail_msg: "Student ID must be an integer between 1 and 35!"
+      success_msg: "Student ID entered correctly, great job!"
+
+  - name: Add correct student number to VAR file
+    lineinfile:
+      path: ~/dev/aci/lab1/immday_vars.yml
+      regexp: sno
+      line: 'student_no: {{student_id}}'
+ 

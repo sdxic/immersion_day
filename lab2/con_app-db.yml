@@ -1,0 +1,101 @@
+# Create Required Security Contract
+- name: Add contract for app-to-DB
+  hosts: localhost
+  vars_files: immday_vars.yml
+  tasks:
+  - name: Add a new contract
+    aci_contract:
+      host: apic1-pod2
+      username: "{{ student_username }}"
+      password: "{{ student_password }}"
+      validate_certs: no
+      tenant: "{{ tenant }}"
+      contract: app-to-db
+      description: Secure App-to-DB
+      scope: application-profile
+      state: present
+    delegate_to: localhost
+
+  - name: Add a new contract subject
+    aci_contract_subject:
+      host: apic1-pod2
+      username: "{{ student_username }}"
+      password: "{{ student_password }}"
+      validate_certs: no
+      tenant: "{{ tenant }}"
+      contract: app-to-db
+      subject: app-to-db
+      description: test
+      reverse_filter: yes
+      priority: level1
+      dscp: unspecified
+      state: present
+    delegate_to: localhost
+
+  - name: Add a new filter to a tenant
+    aci_filter:
+      host: apic1-pod2
+      username: "{{ student_username }}"
+      password: "{{ student_password }}"
+      validate_certs: no
+      filter: basic_open
+      description: Open Filter
+      tenant: "{{ tenant }}"
+      state: present
+    delegate_to: localhost
+
+  - name: Add a filter entry
+    aci_filter_entry:
+      host: apic1-pod2
+      username: "{{ student_username }}"
+      password: "{{ student_password }}"
+      validate_certs: no
+      state: present
+      entry: ether_open
+      tenant: "{{ tenant }}"
+      filter: basic_open
+      descr: ether_open
+    delegate_to: localhost
+
+  - name: Add a new contract subject to filer binding
+    aci_contract_subject_to_filter:
+      host: apic1-pod2
+      username: "{{ student_username }}"
+      password: "{{ student_password }}"
+      validate_certs: no
+      tenant: "{{ tenant }}"
+      contract: app-to-db
+      subject: app-to-db
+      filter: basic_open
+      state: present
+    delegate_to: localhost
+    
+  - name: Add contract to EPG bindings
+    aci_epg_to_contract:
+      host: apic1-pod2
+      username: "{{ student_username }}"
+      password: "{{ student_password }}"
+      validate_certs: no
+      tenant: "{{ tenant }}"
+      ap: "{{ ap }}"
+      epg: app-A
+      contract: app-to-db
+      contract_type: consumer
+      state: present
+    delegate_to: localhost
+
+  - name: Add contract to EPG bindings
+    aci_epg_to_contract:
+      host: apic1-pod2
+      username: "{{ student_username }}"
+      password: "{{ student_password }}"
+      validate_certs: no
+      tenant: "{{ tenant }}"
+      ap: "{{ ap }}"
+      epg: db-A
+      contract: app-to-db
+      contract_type: provider
+      state: present
+    delegate_to: localhost
+
+

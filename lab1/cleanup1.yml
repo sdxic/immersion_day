@@ -1,0 +1,30 @@
+---
+# !!!DISCLAIMER: DO NOT USE IN PRODUCTION ENVIRONMENT!!!
+- name: Query then remove all VRFs in tenant
+  hosts: localhost
+  vars_files: immday_vars.yml
+  tasks:
+  - name: Query all VRFs
+    aci_vrf:
+      host: apic1-pod2
+      username: "{{ student_username }}"
+      password: mysidlab
+      validate_certs: no
+      tenant: "{{ tenant }}"
+      state: query
+    delegate_to: localhost
+    register: query_vrf
+    
+  - name: Remove a VRF for a tenant
+    aci_vrf:
+      host: apic1-pod2
+      username:  "{{ student_username }}"
+      password: mysidlab
+      validate_certs: no
+      vrf: "{{ item.fvCtx.attributes.name }}"
+      tenant: "{{ tenant }}"
+      state: absent
+    delegate_to: localhost
+    loop: "{{ query_vrf.current.0.fvTenant.children }}"
+    loop_control:
+      label: "deleting VRF Name {{ item.fvCtx.attributes.name }}"  

@@ -1,0 +1,21 @@
+---
+- name: Edit PG state on App and Web
+  hosts: localhost
+  vars_files: immday_vars.yml
+  tasks:
+  - name: Toggle EPG Preferred Group to yes
+    aci_epg:
+      host: apic1-pod2
+      username: "{{ student_username }}"
+      password: "{{ student_password }}"
+      validate_certs: no
+      tenant: "{{ tenant }}"
+      ap: "{{ ap }}"
+      epg: "{{ item }}"
+      description: Web Intranet EPG
+      bd: "{{ bd }}"
+      preferred_group: yes
+      state: present
+    delegate_to: localhost
+    with_items:
+      "{{ app_web_only }}"

@@ -1,0 +1,19 @@
+---
+- name: Disable preferred group in student VRF
+  hosts: localhost
+  vars_files: immday_vars.yml
+  tasks:
+  - name: Disable preferred Group 
+    aci_rest:
+      host: apic1-pod2
+      username: "{{ student_username }}"
+      password: "{{ student_password }}"
+      validate_certs: no
+      path: /api/node/mo/uni/tn-student{{ student_no }}/ctx-{{ vrf }}/any.json
+      method: post
+      content:
+        vzAny:
+          attributes: 
+            dn:  uni/tn-student{{ student_no }}/ctx-{{ vrf }}/any
+            prefGrMemb: disabled     
+    delegate_to: localhost

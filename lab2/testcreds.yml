@@ -1,0 +1,31 @@
+---
+- name: Add a new VRF to a tenant
+  hosts: localhost
+  vars_files: immday_vars.yml
+  tasks:
+  - name: Deploy VRF context
+    aci_vrf:
+      host: apic1-pod2
+      username: "{{ student_username }}"
+      password: "{{ student_password }}"
+      validate_certs: no
+      vrf: "{{ vrf }}-test"
+      tenant: "{{ tenant }}"
+      descr: Unenforced lab VRF
+      policy_control_preference: unenforced
+      policy_control_direction: ingress
+      state: present
+    delegate_to: localhost
+ 
+  - name: Deploy Bridge Domain
+    aci_bd:
+      host: apic1-pod2
+      username: "{{ student_username }}"
+      password: "{{ student_password }}"     
+      validate_certs: no
+      tenant: "{{ tenant }}"
+      bd: "{{ bd }}-josh"
+      mac_address: 00:22:BD:F8:19:FE
+      vrf: "{{ vrf }}"
+      state: present
+    delegate_to: localhost

@@ -1,0 +1,42 @@
+---
+- name: Static Bindings and Domain Mappings
+  hosts: localhost
+  vars_files: immday_vars.yml
+  tasks:
+  - name: Deploy Static Path binding for given EPG
+    aci_static_binding_to_epg:
+      host: apic1-pod2
+      username: "{{ student_username }}"
+      password: mysidlab
+      validate_certs: no
+      tenant: "{{ tenant }}"
+      ap: "{{ ap }}"
+      epg: "{{ item.0 }}"
+      encap_id: "{{ item.1 }}"
+      deploy_immediacy: immediate
+      interface_mode: trunk
+      interface_type: switch_port
+      pod_id: 2
+      leafs: 207
+      interface: '1/30'
+      state: present
+    delegate_to: localhost
+    with_together:
+      - "{{ epgs }}"
+      - "{{ encaps }}"
+  
+  - name: Add a new physical domain to EPG binding
+    aci_epg_to_domain:
+      host: apic1-pod2
+      username: "{{ student_username }}"
+      password: mysidlab
+      validate_certs: no
+      tenant: "{{ tenant }}"
+      ap: "{{ ap }}"
+      epg: "{{ item }}"
+      domain: Student
+      domain_type: phys
+      state: present
+    delegate_to: localhost
+    with_items:
+      - "{{ epgs }}"
